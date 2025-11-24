@@ -13,18 +13,12 @@ public class PathLoader {
     ObjectMapper objectMapper = new ObjectMapper()
             .registerModule(new JavaTimeModule());
 
-    public SimulatedDronePath loadPathJson(){
+    public DeliveryPath loadPathJson(){
         try{
             InputStream inputStream = getClass().getClassLoader()
                     .getResourceAsStream("path.json");
-            DeliveryPath deliveryPath = objectMapper
+            return objectMapper
                     .readValue(inputStream, DeliveryPath.class);
-            DronePath dronePath = deliveryPath.dronePaths().get(0);
-            List<SimulatedDelivery> simulatedDeliveries =
-                    dronePath.deliveries().stream()
-                            .map(SimulatedDelivery::new).toList();
-            return new SimulatedDronePath(
-                    dronePath.droneId(), simulatedDeliveries);
         } catch (Exception e){
             throw new RuntimeException("Fail to load path",e);
         }
