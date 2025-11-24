@@ -29,7 +29,7 @@
     }).addTo(map);
 
     const stompClient = new StompJs.Client({
-        webSocketFactory: () => new SockJS("http://localhost:8080/websocket"),
+        webSocketFactory: () => new SockJS("/websocket"),
         reconnectDelay: 5000,
         onConnect: () => {
             console.log('Connected to WebSocket');
