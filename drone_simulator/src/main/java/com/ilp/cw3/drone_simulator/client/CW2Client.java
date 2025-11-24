@@ -1,6 +1,7 @@
 package com.ilp.cw3.drone_simulator.client;
 
 import com.ilp.cw3.drone_simulator.model.DeliveryPath;
+import com.ilp.cw3.drone_simulator.model.Drone;
 import com.ilp.cw3.drone_simulator.model.MedDispatchRec;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -22,6 +23,15 @@ public class CW2Client {
                 .bodyValue(medDispatchRecs)
                 .retrieve()
                 .bodyToMono(DeliveryPath.class)
+                .block();
+    }
+
+    public Drone getDroneDetails(String droneId) {
+        return webClient
+                .get()
+                .uri("/api/v1/droneDetails/{droneId}", droneId)
+                .retrieve()
+                .bodyToMono(Drone.class)
                 .block();
     }
 }
