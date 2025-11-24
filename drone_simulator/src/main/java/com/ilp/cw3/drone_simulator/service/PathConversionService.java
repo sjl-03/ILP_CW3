@@ -11,10 +11,8 @@ import java.util.List;
 @Service
 public class PathConversionService {
     public SimulatedDronePath convertPathToSimulatedDronePath(
-            DeliveryPath deliveryPath
+            DronePath dronePath
     ){
-        DronePath dronePath = deliveryPath.dronePaths().get(0);
-
         List<SimulatedDelivery> simulatedDeliveries =
                 dronePath.deliveries().stream()
                         .map(SimulatedDelivery::new).toList();
