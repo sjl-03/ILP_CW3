@@ -8,9 +8,9 @@ docker run -d --hostname rabbit --name rabbitmq \
 
 After cloning the repo, first locate the index file inside Drone Visualiser.
 
-Paste the absolute path of the index file into the browser, for example
+To view live update, go to
 ```
-file:///Users/shenjunlu/Edinburgh_Materials/UoE_Courseworks/Y3S1_ILP/CW3/drone_visualiser/src/main/resources/static/index.html
+http://localhost:8082/
 ```
 
 Then run both the Drone Visualiser and Simulator. 
