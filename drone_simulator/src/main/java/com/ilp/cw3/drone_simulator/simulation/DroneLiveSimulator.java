@@ -3,6 +3,9 @@ package com.ilp.cw3.drone_simulator.simulation;
 import com.ilp.cw3.drone_simulator.model.*;
 import com.ilp.cw3.drone_simulator.rabbitmq.TelemetryEvent;
 import com.ilp.cw3.drone_simulator.rabbitmq.TelemetrySender;
+import com.ilp.cw3.drone_simulator.service.SimulationService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -12,36 +15,46 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
 public class DroneLiveSimulator {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(DroneLiveSimulator.class);
     private final TelemetrySender sender;
-    private final SimulatedDronePath simulatedDronePath;
-    private final String droneId;
-    private final LocalDate leaveDate;
-    private final LocalTime leaveTime;
-    private final int servicePointId;
-    private final int remainingMovesInitial;
-    private final int SECONDS_PER_TICK = 6;
-    private boolean finished = false;
+    private SimulatedDronePath simulatedDronePath;
+    private String droneId;
+    private LocalDate leaveDate;
+    private LocalTime leaveTime;
+    private int servicePointId;
+    private int remainingMovesInitial;
+    private final int SECONDS_PER_TICK = 1;
+    private boolean active = false;
     private final AtomicInteger globalIndex = new AtomicInteger(0);
 
-    public DroneLiveSimulator(TelemetrySender sender, PathLoader pathLoader) {
+    public DroneLiveSimulator(TelemetrySender sender) {
         this.sender = sender;
+        logger.info("Creating DroneLiveSimulator");
+    }
 
-        this.simulatedDronePath = pathLoader.loadPathJson();
+    public void startSimulation(SimulatedDroneInfo droneInfo) {
+        this.active = false;
 
-        DroneDetail detail = pathLoader.loadDroneDetailJson();
+        this.simulatedDronePath = droneInfo.simulatedDronePath();
+
+        DroneDetail detail = droneInfo.droneDetail();
         this.droneId = detail.id();
         this.leaveDate = detail.leaveDate();
         this.leaveTime = detail.leaveTime();
         this.servicePointId = detail.servicePointId();
         this.remainingMovesInitial = detail.remainingMoves();
 
-        System.out.println("Simulator ready for drone " + droneId);
+        this.globalIndex.set(0);
+        this.active = true;
+        logger.info("Starting simulation for drone {}", droneId);
     }
 
     @Scheduled(fixedRate = SECONDS_PER_TICK*1000)
     public void tick(){
 
-        if (finished) {
+        if (!active) {
             return;
         }
 
@@ -55,7 +68,7 @@ public class DroneLiveSimulator {
         Position nextPosition = simulatedDronePath.nextPosition();
         if (nextPosition == null) {
             // finish simulation
-            finished = true;
+            active = false;
             System.err.println("Simulator finished for drone " + droneId);
             return;
         }
@@ -63,14 +76,14 @@ public class DroneLiveSimulator {
         int deliveryId = simulatedDronePath.getCurrentDeliveryId();
 
         TelemetryEvent telemetry = new TelemetryEvent(
-            droneId,
-            nextPosition,
-            remainingMoves,
-            DroneStatus.FLYING,
-            servicePointId,
-            deliveryId,
-            date,
-            time
+                droneId,
+                nextPosition,
+                remainingMoves,
+                DroneStatus.FLYING,
+                servicePointId,
+                deliveryId,
+                date,
+                time
         );
 
         sender.send(telemetry);
