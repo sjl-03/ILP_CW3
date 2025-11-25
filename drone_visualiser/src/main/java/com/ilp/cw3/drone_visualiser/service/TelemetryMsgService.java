@@ -33,12 +33,14 @@ public class TelemetryMsgService {
         DroneWebSocketMessage messageOut = new DroneWebSocketMessage(
                 event.droneId(),
                 event.status(),
-                event.position()
+                event.position(),
+                event.dispatchId(),
+                event.remainingMoves()
         );
 
         messagingTemplate.convertAndSend("/topic/drones", messageOut);
 
-        logger.info("Message sent to topic: droneId={}, eventId={}, position={}",
+        logger.debug("Message sent to topic: droneId={}, eventId={}, position={}",
                 messageOut.droneId(), event.status(), event.position());
     }
 }

@@ -1,6 +1,5 @@
 package com.ilp.cw3.drone_simulator.simulation;
 
-import com.ilp.cw3.drone_simulator.model.Drone;
 import com.ilp.cw3.drone_simulator.model.SimulatedDroneInfo;
 import com.ilp.cw3.drone_simulator.rabbitmq.TelemetrySender;
 import org.slf4j.Logger;
@@ -21,7 +20,7 @@ public class SimulationManager {
     private final Map<String, DroneSimulatorInstance> simulatorMap =
             new ConcurrentHashMap<>();
 
-    public static final int SECONDS_PER_TICK = 1;
+    public static final int SECONDS_PER_100_TICK = 10;
 
     public SimulationManager(TelemetrySender sender) {
         this.sender = sender;
@@ -34,7 +33,7 @@ public class SimulationManager {
                 (k,v) -> {
             if (v == null) {
                 DroneSimulatorInstance simulatorInstance =
-                        new DroneSimulatorInstance(sender, SECONDS_PER_TICK);
+                        new DroneSimulatorInstance(sender, SECONDS_PER_100_TICK);
                 simulatorInstance.enqueueTask(droneInfo);
                 return simulatorInstance;
             }
@@ -44,7 +43,7 @@ public class SimulationManager {
             }
         });
     }
-    @Scheduled(fixedRate = SECONDS_PER_TICK*1000)
+    @Scheduled(fixedRate = SECONDS_PER_100_TICK *10)
     public void tick() {
         // call tick function for each drone
         simulatorMap.values().forEach(DroneSimulatorInstance::tick);

@@ -11,11 +11,61 @@
     <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
 
     <style>
-        #map { height: 100vh; }
+        #container {
+            display: flex;
+            flex-direction: row;
+            height: 100vh;
+            width: 100%;
+        }
+
+        #map {
+            flex: 3;
+            height: 100%;
+        }
+
+        #drone-panel {
+            flex: 1;
+            background: cornsilk;
+            border-left: 1px solid blanchedalmond;
+            padding: 10px;
+            overflow-y: auto;
+        }
+
+        .drone-card {
+            background: aliceblue;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .drone-button {
+            background: ghostwhite;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .drone-button:hover {
+            background-color: lightgrey;
+        }
+
+        .warning {
+            color: red;
+            font-weight: bold;
+        }
+
     </style>
 </head>
 <body>
-<div id="map"></div>
+<div id="container">
+    <div id="map"></div>
+    <div id="drone-panel">
+        <h2>Drone Status</h2>
+        <div id="drone-list"></div>
+    </div>
+</div>
+
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
@@ -35,10 +85,11 @@
             console.log('Connected to WebSocket');
 
             stompClient.subscribe("/topic/drones", message => {
-                console.log(`Received: ${message.body}`);
+                console.debug(`Received: ${message.body}`);
 
                 const data = JSON.parse(message.body);
                 updateDrone(data);
+                updateDronePanel(data);
                 }
             );
 
@@ -48,9 +99,29 @@
 
 
     // ------- Drone visualisation -------
+    // map droneId to marker, path, polyline
     const dronesInfo = new Map();
     function updateDrone(data) {
         const droneId = data.droneId;
+
+        if (data.status == "IDLE") {
+            console.log(`Drone ${data.droneId} has finished.`);
+
+            const infoMapping = dronesInfo.get(droneId);
+            if (infoMapping) {
+                // remove the mapping
+                map.removeLayer(infoMapping.marker);
+                map.removeLayer(infoMapping.polyline);
+                dronesInfo.delete(droneId);
+            }
+
+            removeDroneCard(droneId);
+            return;
+        }
+
+        if (!data.position) {
+            console.warn(`Drone ${data.droneId} has no position (status = ${data.status})`)
+        }
         const position = [data.position.lat, data.position.lng]; // [lat, lng]
 
         if (!dronesInfo.has(droneId)) {
@@ -91,6 +162,73 @@
             case "IDLE": return '#009E73'; // green
             // case "FAILED": return '#E69F00'; // orange
             default: return '#C13C48'; //red
+        }
+    }
+
+    // Drone Panel
+    function updateDronePanel(data) {
+        const droneId = data.droneId;
+        const entryId = `drone-${droneId}`;
+
+        if (data.status == "IDLE") {
+            removeDroneCard(droneId);
+            return;
+        }
+
+        // if undefined show "?"
+        const lowMoveWarning =
+            data.remainingMoves < 10
+                ? `<p class="warning"> Low remaining moves: ${data.remainingMoves}</p>`
+                : `<p>Remaining moves: ${data.remainingMoves ?? "?"}</p>`;
+
+        // round position to 5 dp
+        const droneCard =
+            `<div class="drone-card" id="${entryId}">
+                <h3>
+                    <button class="drone-button" onclick="focusDrone('${droneId}')">
+                        Drone ${droneId}
+                    </button>
+                </h3>
+                <p>Status:
+                    <span style="color: ${getColour(data.status)}">
+                        ${data.status}
+                    </span>
+                </p>
+                <p>Position: lat=${data.position.lat.toFixed(5)},
+                lng=${data.position.lng.toFixed(5)}</p>
+                ${lowMoveWarning}
+                <p>Dispatch ID: ${data.dispatchId ?? "?"}</p>
+            </div>`;
+
+        const list = document.getElementById('drone-list');
+        const existing = document.getElementById(entryId);
+        if (existing) {
+            // replace existing card
+            existing.outerHTML = droneCard;
+        } else {
+            // add new card to list
+            list.innerHTML += droneCard;
+        }
+    }
+
+    function removeDroneCard(droneId) {
+        const entryId = `drone-${droneId}`;
+        const card = document.getElementById(entryId);
+        if (card) {
+            card.remove();
+        }
+    }
+
+    function focusDrone(droneId) {
+        const infoMapping = dronesInfo.get(droneId);
+        if (infoMapping) {
+            // get last position
+            const lastPos = infoMapping.path[infoMapping.path.length - 1];
+            map.setView(lastPos, 16);
+            infoMapping.marker.openTooltip();
+        }
+        else {
+            console.warn(`Drone ${droneId} not found.`);
         }
     }
 

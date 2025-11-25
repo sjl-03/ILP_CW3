@@ -88,7 +88,19 @@ public class DroneSimulatorInstance {
         if (nextPosition == null) {
             // finish simulation
             active = false;
-            System.err.println("Simulator finished for drone " + droneId);
+            logger.info("Simulator finished for drone {}",droneId);
+            TelemetryEvent telemetry = new TelemetryEvent(
+                    droneId,
+                    null,
+                    remainingMoves,
+                    DroneStatus.IDLE,
+                    servicePointId,
+                    -1,
+                    date,
+                    time
+            );
+
+            sender.send(telemetry);
             return;
         }
 
