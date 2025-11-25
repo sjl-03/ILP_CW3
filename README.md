@@ -11,13 +11,14 @@ Cd into the root folder where the README and tar files are located.
 Start the drone simulator, visualiser and cw2 by running the following
 ```
 docker image load -i ilp_submisson_image.tar
-docker run -d --publish 8080:8080 --name ilp_cw2 ilp_cw2:latest
-
 docker image load -i drone_simulator_image.tar
-docker run -d --publish 8081:8081 --name drone_simulator drone_simulator:latest
-
 docker image load -i drone_visualiser_image.tar
-docker run -d --publish 8082:8082 --name drone_visualiser drone_visualiser:latest
+
+docker network create ilpnet
+docker run -d --network ilpnet --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-management
+docker run -d --network ilpnet --name ilp_cw2 -p 8080:8080 ilp_cw2:latest
+docker run -d --network ilpnet --name drone_simulator -p 8081:8081 drone_simulator:latest
+docker run -d --network ilpnet --name drone_visualiser -p 8082:8082 drone_visualiser:latest
 ```
 
 Open the following in the browser
@@ -142,4 +143,9 @@ docker image save drone_simulator -o drone_simulator_image.tar
 ```
 docker buildx build --load -t drone_visualiser .
 docker image save drone_visualiser -o drone_visualiser_image.tar
+```
+If running CW3 locally (not through image)
+```
+docker image load -i ilp_submisson_image.tar
+docker run -d --publish 8080:8080 --name ilp_cw2 ilp_cw2:latest
 ```
