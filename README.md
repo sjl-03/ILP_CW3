@@ -1,14 +1,12 @@
 # Drone simulator and visualiser
 
-Run RabbitMQ in Docker 
-```
-docker run -d --hostname rabbit --name rabbitmq \
-  -p 5672:5672 -p 15672:15672 rabbitmq:3-management
-```
+## Project Structure
+There are 3 Docker images, which are loaded from `ilp_submisson_image.tar`, `drone_simulator_image.tar` and `drone_visualiser_image.tar`. All components run together through Docker and communicate via a shared Docker network.
 
-Cd into the root folder where the README and tar files are located.
+## Getting Started
+cd into the root folder of this project, where you should find this README file and  `ilp_submisson_image.tar`, `drone_simulator_image.tar`, `drone_visualiser_image.tar`.
 
-Start the drone simulator, visualiser and cw2 by running the following
+Now run the following
 ```
 docker image load -i ilp_submisson_image.tar
 docker image load -i drone_simulator_image.tar
@@ -21,12 +19,15 @@ docker run -d --network ilpnet --name drone-simulator -p 8081:8081 drone_simulat
 docker run -d --network ilpnet --name drone-visualiser -p 8082:8082 drone_visualiser:latest
 ```
 
-Open the following in the browser
+Open the browser and go to:
 ```
 http://localhost:8082/
 ```
+This will display the live map visuliser and drone status panel.
 
-New you can post requests, such as 
+## Trigger a Simulation
+
+Send a POST request to the Drone Simulater, e.g.:
 ```
 curl -X POST http://localhost:8081/api/v1/simulateDeliveryPath \
   -H "Content-Type: application/json" \
@@ -131,7 +132,8 @@ curl -X POST http://localhost:8081/api/v1/simulateDeliveryPath \
 
 ```
 
-# How Docker images are built
+# Building Docker Images
+Below is how the Docker images are built
 ```
 docker buildx build --load -t ilp_cw2 .
 docker image save ilp_cw2 -o ilp_submisson_image.tar
@@ -143,9 +145,4 @@ docker image save drone_simulator -o drone_simulator_image.tar
 ```
 docker buildx build --load -t drone_visualiser .
 docker image save drone_visualiser -o drone_visualiser_image.tar
-```
-If running CW3 locally (not through image)
-```
-docker image load -i ilp_submisson_image.tar
-docker run -d --publish 8080:8080 --name ilp_cw2 ilp_cw2:latest
 ```
