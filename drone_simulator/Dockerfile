@@ -20,6 +20,8 @@ WORKDIR /app
 COPY --from=build /app/target/drone_simulator*.jar app.jar
 EXPOSE 8081
 
+ENV SPRING_PROFILES_ACTIVE=docker
+
 # Showing how ENV variables can be set
 # ENV ILP_SERVICE_URL=https://ilp-rest-2024.azurewebsites.net/
 
