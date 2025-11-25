@@ -170,45 +170,50 @@
         const droneId = data.droneId;
         const entryId = `drone-${droneId}`;
 
-        if (data.status == "IDLE") {
+        if (data.status === "IDLE") {
             removeDroneCard(droneId);
             return;
         }
 
-        // if undefined show "?"
-        const lowMoveWarning =
-            data.remainingMoves < 10
-                ? `<p class="warning"> Low remaining moves: ${data.remainingMoves}</p>`
-                : `<p>Remaining moves: ${data.remainingMoves ?? "?"}</p>`;
-
-        // round position to 5 dp
-        const droneCard =
-            `<div class="drone-card" id="${entryId}">
+        let card = document.getElementById(entryId);
+        // creat card if not exist
+        if (!card) {
+            card = document.createElement('div');
+            card.className = 'drone-card';
+            card.id = entryId;
+            card.innerHTML = `
                 <h3>
                     <button class="drone-button" onclick="focusDrone('${droneId}')">
                         Drone ${droneId}
                     </button>
                 </h3>
-                <p>Status:
-                    <span style="color: ${getColour(data.status)}">
-                        ${data.status}
-                    </span>
-                </p>
-                <p>Position: lat=${data.position.lat.toFixed(5)},
-                lng=${data.position.lng.toFixed(5)}</p>
-                ${lowMoveWarning}
-                <p>Dispatch ID: ${data.dispatchId ?? "?"}</p>
-            </div>`;
-
-        const list = document.getElementById('drone-list');
-        const existing = document.getElementById(entryId);
-        if (existing) {
-            // replace existing card
-            existing.outerHTML = droneCard;
-        } else {
-            // add new card to list
-            list.innerHTML += droneCard;
+                <p>Status:<span class="status-text"></span></p>
+                <p>Position: <span class="pos-text"></span></p>
+                <p class="move-warning"></p>
+                <p>Dispatch ID: <span class="dispatch-text"></span></p>
+            `;
+            document.getElementById("drone-list").appendChild(card);
         }
+
+        // update fields
+        card.querySelector(".status-text").textContent = data.status;
+        card.querySelector(".status-text").style.color = getColour(data.status);
+        // round position to 5 dp
+        card.querySelector(".pos-text").textContent =
+            `lat=${data.position.lat.toFixed(5)},
+             lng=${data.position.lng.toFixed(5)}`;
+
+        if (data.remainingMoves < 10) {
+            card.querySelector(".move-warning").innerHTML =
+                `<span class="warning"> Low remaining moves:
+                ${data.remainingMoves}</span>`;
+        } else {
+            // if undefined show "?"
+            card.querySelector(".move-warning").textContent =
+                `Remaining moves: ${data.remainingMoves ?? "?"}`;
+        }
+
+        card.querySelector(".dispatch-text").textContent = data.dispatchId ?? "?";
     }
 
     function removeDroneCard(droneId) {
@@ -225,7 +230,6 @@
             // get last position
             const lastPos = infoMapping.path[infoMapping.path.length - 1];
             map.setView(lastPos, 16);
-            infoMapping.marker.openTooltip();
         }
         else {
             console.warn(`Drone ${droneId} not found.`);
