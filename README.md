@@ -6,13 +6,112 @@ docker run -d --hostname rabbit --name rabbitmq \
   -p 5672:5672 -p 15672:15672 rabbitmq:3-management
 ```
 
-After cloning the repo, first locate the index file inside Drone Visualiser.
-
-To view live update, go to
+Start the drone simulator, visuliser and cw2, and open the following in the browser
 ```
 http://localhost:8082/
 ```
 
-Then run both the Drone Visualiser and Simulator. 
+New you can post requests, such as 
+```
+curl -X POST http://localhost:8081/api/v1/simulateDeliveryPath \
+  -H "Content-Type: application/json" \
+  -d '[
+    {
+        "id": 1,
+        "date": "2025-12-22",
+        "time": "14:30",
+        "requirements": {
+            "capacity": 0.75,
+            "cooling": false,
+            "heating": true,
+            "maxCost": 13.5
+        },
+        "delivery": { "lng": -3.189, "lat": 55.941 }
+    },
+    {
+        "id": 2,
+        "date": "2025-12-22",
+        "time": "14:30",
+        "requirements": {
+            "capacity": 0.15,
+            "cooling": false,
+            "heating": false,
+            "maxCost": 10.5
+        },
+        "delivery": { "lng": -3.189, "lat": 55.951 }
+    },
+    {
+        "id": 3,
+        "date": "2025-12-22",
+        "time": "14:30",
+        "requirements": {
+            "capacity": 6,
+            "cooling": false,
+            "heating": false,
+            "maxCost": 5.0
+        },
+        "delivery": { "lng": -3.183, "lat": 55.95 }
+    },
+    {
+        "id": 4,
+        "date": "2025-12-22",
+        "time": "14:30",
+        "requirements": {
+            "capacity": 0.65,
+            "cooling": false,
+            "heating": true,
+            "maxCost": 15.0
+        },
+        "delivery": { "lng": -3.213, "lat": 55.94 }
+    },
+    {
+        "id": 5,
+        "date": "2025-12-22",
+        "time": "14:30",
+        "requirements": {
+            "capacity": 0.75,
+            "cooling": false,
+            "heating": true,
+            "maxCost": 13.5
+        },
+        "delivery": { "lng": -3.2088, "lat": 55.9799 }
+    },
+    {
+        "id": 6,
+        "date": "2025-12-22",
+        "time": "14:30",
+        "requirements": {
+            "capacity": 0.15,
+            "cooling": false,
+            "heating": false,
+            "maxCost": 10.5
+        },
+        "delivery": { "lng": -3.1845, "lat": 55.9707 }
+    },
+    {
+        "id": 7,
+        "date": "2025-12-22",
+        "time": "14:30",
+        "requirements": {
+            "capacity": 0.65,
+            "cooling": false,
+            "heating": true,
+            "maxCost": 15.0
+        },
+        "delivery": { "lng": -3.1795, "lat": 55.9434 }
+    },
+    {
+        "id": 8,
+        "date": "2025-12-22",
+        "time": "14:30",
+        "requirements": {
+            "capacity": 0.75,
+            "cooling": false,
+            "heating": true,
+            "maxCost": 13.5
+        },
+        "delivery": { "lng": -3.1655, "lat": 55.9806 }
+    }
+]'
 
-Live info of the simulated drone should be visible in the browser. 
+```
