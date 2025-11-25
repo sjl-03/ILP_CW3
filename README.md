@@ -115,3 +115,13 @@ curl -X POST http://localhost:8081/api/v1/simulateDeliveryPath \
 ]'
 
 ```
+
+# How docker images are built
+```
+docker buildx build --load -t drone_simulator .
+docker image save drone_simulator -o drone_simulator_image.tar
+```
+```
+docker buildx build --load -t drone_visualiser .
+docker image save drone_visualiser -o drone_visualiser_image.tar
+```
