@@ -16,9 +16,9 @@ docker image load -i drone_visualiser_image.tar
 
 docker network create ilpnet
 docker run -d --network ilpnet --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-management
-docker run -d --network ilpnet --name ilp_cw2 -p 8080:8080 ilp_cw2:latest
-docker run -d --network ilpnet --name drone_simulator -p 8081:8081 drone_simulator:latest
-docker run -d --network ilpnet --name drone_visualiser -p 8082:8082 drone_visualiser:latest
+docker run -d --network ilpnet --name ilp-cw2 -p 8080:8080 ilp_cw2:latest
+docker run -d --network ilpnet --name drone-simulator -p 8081:8081 drone_simulator:latest
+docker run -d --network ilpnet --name drone-visualiser -p 8082:8082 drone_visualiser:latest
 ```
 
 Open the following in the browser
