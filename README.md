@@ -17,7 +17,7 @@ docker image load -i drone_simulator_image.tar
 docker run -d --publish 8081:8081 --name drone_simulator drone_simulator:latest
 
 docker image load -i drone_visualiser_image.tar
-docker run -d --publish 8082:8082 --name drone_simulator drone_simulator:latest
+docker run -d --publish 8082:8082 --name drone_visualiser drone_visualiser:latest
 ```
 
 Open the following in the browser
