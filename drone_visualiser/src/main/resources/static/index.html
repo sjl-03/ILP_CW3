@@ -150,6 +150,7 @@
             const droneInfo = dronesInfo.get(droneId);
 
             droneInfo.marker.setLatLng(position);
+            droneInfo.marker.setStyle({color: getColour(data.status)});
             droneInfo.path.push(position);
             droneInfo.polyline.setLatLngs(droneInfo.path);
             droneInfo.polyline.setStyle({color: getColour(data.status)});
@@ -160,8 +161,8 @@
         switch(droneStatus) {
             case "FLYING": return '#0072B2'; // blue
             case "IDLE": return '#009E73'; // green
-            // case "FAILED": return '#E69F00'; // orange
-            default: return '#C13C48'; //red
+            case "ERROR": return '#C13C48'; // red
+            default: return '#E69F00'; //orange
         }
     }
 

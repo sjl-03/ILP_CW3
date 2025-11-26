@@ -85,6 +85,8 @@ public class DroneSimulatorInstance {
                 ? leaveDate.plusDays(1) : leaveDate;
 
         Position nextPosition = simulatedDronePath.nextPosition();
+        int deliveryId = simulatedDronePath.getCurrentDeliveryId();
+
         if (nextPosition == null) {
             // finish simulation
             active = false;
@@ -95,7 +97,7 @@ public class DroneSimulatorInstance {
                     remainingMoves,
                     DroneStatus.IDLE,
                     servicePointId,
-                    -1,
+                    deliveryId,
                     date,
                     time
             );
@@ -104,7 +106,22 @@ public class DroneSimulatorInstance {
             return;
         }
 
-        int deliveryId = simulatedDronePath.getCurrentDeliveryId();
+        if (remainingMoves <= 0) {
+            logger.warn("Running out of moves with droneId {}", droneId);
+            active = false;
+            TelemetryEvent telemetry = new TelemetryEvent(
+                    droneId,
+                    nextPosition,
+                    remainingMoves,
+                    DroneStatus.ERROR,
+                    servicePointId,
+                    deliveryId,
+                    date,
+                    time
+            );
+            sender.send(telemetry);
+            return;
+        }
 
         TelemetryEvent telemetry = new TelemetryEvent(
                 droneId,
