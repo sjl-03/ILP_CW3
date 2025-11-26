@@ -23,11 +23,14 @@ Open the browser and go to:
 ```
 http://localhost:8082/
 ```
-This will display the live map visuliser and drone status panel.
+This will display the live map visualiser and drone status panel.
 
 ## Trigger a Simulation
-
-Send a POST request to the Drone Simulater, e.g.:
+Simulate using a local example by sending an empty request.
+```
+curl -X POST http://localhost:8081/api/v1/simulateDeliveryPath
+```
+Send a POST request to the Drone Simulator, e.g.:
 ```
 curl -X POST http://localhost:8081/api/v1/simulateDeliveryPath \
   -H "Content-Type: application/json" \
